@@ -1,0 +1,21 @@
+{
+  "name": "pangyozone-food-bot",
+  "module": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ./dist/index.js",
+    "dev": "tsx ./src/index.ts",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "pdfjs-dist": "^4.0.379",
+    "sharp": "^0.33.2"
+  },
+  "packageManager": "yarn@4.1.0+sha256.81a00df816059803e6b5148acf03ce313cad36b7f6e5af6efa040a15981a6ffb"
+}
