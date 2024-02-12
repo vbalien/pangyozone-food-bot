@@ -40,13 +40,13 @@ async function start() {
       gusigResponse.filename + ".webp",
     );
 
-    await fs.writeFile(CACHE_FILE, etag ?? "");
+    await fs.writeFile(CACHE_FILE, gusigResponse.etag ?? "");
 
     const result = await uploadResponse.json();
     if (result.ok) {
       console.log("OK");
     } else {
-      console.log("ERROR");
+      console.log(result.error);
     }
   } else {
     console.log("PASS");
