@@ -30,11 +30,15 @@ async function start() {
         right: 20,
         background: "#ffffff",
       })
-      .png()
+      .webp()
       .toBuffer();
 
     const formData = new FormData();
-    formData.append("file", new Blob([postProcessedImage]), res.filename);
+    formData.append(
+      "file",
+      new Blob([postProcessedImage]),
+      res.filename + ".webp",
+    );
     formData.append("channels", CHANNEL);
 
     const response = await fetch("https://slack.com/api/files.upload", {

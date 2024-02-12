@@ -37,7 +37,7 @@ export async function fetchGusig(
 
   return {
     etag: response.headers.get("ETag"),
-    filename: filename + ".png",
+    filename,
     buffer,
   };
 }
