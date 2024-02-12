@@ -38,5 +38,7 @@ ENV API_KEY="" \
   INITIAL_ETAG="" \
   SCHEDULE="*/30 * * * *"
 
+VOLUME ["/app/data"]
+
 COPY ./docker-entrypoint.sh /
 ENTRYPOINT /docker-entrypoint.sh
