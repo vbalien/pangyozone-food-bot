@@ -1,10 +1,13 @@
 export type GusigResponse =
   | {
+      ok: true;
       etag: string | null;
       filename: string;
       buffer: ArrayBuffer;
     }
-  | undefined;
+  | {
+      ok: false;
+    };
 
 async function fetchFilename(postId: string): Promise<string> {
   const url = `https://pangyozone.or.kr/result/showBoardAction.php?board_key=${postId}&board_id=notice`;
@@ -29,13 +32,14 @@ export async function fetchGusig(
   });
 
   if (response.status == 304) {
-    return;
+    return { ok: false };
   }
 
   const data = await response.blob();
   const buffer = await data.arrayBuffer();
 
   return {
+    ok: true,
     etag: response.headers.get("ETag"),
     filename,
     buffer,

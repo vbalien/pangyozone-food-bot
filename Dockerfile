@@ -34,7 +34,6 @@ RUN set -x \
 RUN touch /var/log/crawl.log
 
 ENV API_KEY="" \
-  CHANNEL="" \
   POST_ID="" \
   INITIAL_ETAG="" \
   SCHEDULE="*/30 * * * *"

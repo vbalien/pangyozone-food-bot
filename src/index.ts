@@ -1,23 +1,25 @@
 import sharp from "sharp";
-import { pdf2image } from "./utils/pdf2buffer.js";
+import { pdf2image } from "./utils/pdf2image.js";
 import { fetchGusig } from "./utils/fetchGusig.js";
 import fs from "fs/promises";
+import { SlackApi } from "./utils/SlackApi.js";
 
+const CACHE_FILE = "data/cache.txt";
 const API_KEY = process.env.API_KEY ?? "";
-const CHANNEL = process.env.CHANNEL ?? "";
 const POST_ID = process.env.POST_ID ?? "";
 const INITIAL_ETAG = process.env.INITIAL_ETAG ?? "";
 
 async function start() {
   let etag: string | undefined = undefined;
   try {
-    etag = await fs.readFile("data/cache.txt", "utf8");
+    etag = await fs.readFile(CACHE_FILE, "utf8");
   } catch {}
 
-  const res = await fetchGusig(POST_ID, etag ?? INITIAL_ETAG);
+  const slack = new SlackApi(API_KEY);
+  const gusigResponse = await fetchGusig(POST_ID, etag ?? INITIAL_ETAG);
 
-  if (res !== undefined) {
-    const image = await pdf2image(res.buffer, 2.5);
+  if (gusigResponse.ok) {
+    const image = await pdf2image(gusigResponse.buffer, 2.5);
     const postProcessedImage = await sharp(image)
       .trim({
         background: "#ffffff",
@@ -33,25 +35,14 @@ async function start() {
       .webp()
       .toBuffer();
 
-    const formData = new FormData();
-    formData.append(
-      "file",
-      new Blob([postProcessedImage]),
-      res.filename + ".webp",
+    const uploadResponse = await slack.uploadFile(
+      postProcessedImage,
+      gusigResponse.filename + ".webp",
     );
-    formData.append("channels", CHANNEL);
 
-    const response = await fetch("https://slack.com/api/files.upload", {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: `Bearer ${API_KEY}`,
-      },
-    });
+    await fs.writeFile(CACHE_FILE, etag ?? "");
 
-    await fs.writeFile("data/cache.txt", res.etag ?? "");
-
-    const result = await response.json();
+    const result = await uploadResponse.json();
     if (result.ok) {
       console.log("OK");
     } else {
