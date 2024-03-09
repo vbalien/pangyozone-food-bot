@@ -4,6 +4,7 @@ export type GusigResponse =
       etag: string | null;
       filename: string;
       buffer: ArrayBuffer;
+      isPdf: boolean;
     }
   | {
       ok: false;
@@ -13,8 +14,15 @@ async function fetchFilename(postId: string): Promise<string> {
   const url = `https://pangyozone.or.kr/result/showBoardAction.php?board_key=${postId}&board_id=notice`;
   const response = await fetch(url);
   const data = await response.json();
-  const filename = data.map["BOARD_FILE"][0].file;
-  return filename;
+  let filename = data.map["BOARD_FILE"][0]?.file;
+  if (filename) {
+    return `board/${filename}`;
+  }
+
+  const content: string = data.map["BOARD_CONTENT"];
+  const re = /src="\/dataCenter\/ckeditor\/(.*?)"/gi;
+  filename = re.exec(content)?.at(1);
+  return `ckeditor/${filename}`;
 }
 
 export async function fetchGusig(
@@ -22,7 +30,7 @@ export async function fetchGusig(
   cachedEtag?: string,
 ): Promise<GusigResponse> {
   const filename = await fetchFilename(postId);
-  const fileUrl = `https://pangyozone.or.kr/dataCenter/board/${filename}`;
+  const fileUrl = `https://pangyozone.or.kr/dataCenter/${filename}`;
   const response = await fetch(fileUrl, {
     headers: cachedEtag
       ? {
@@ -43,5 +51,6 @@ export async function fetchGusig(
     etag: response.headers.get("ETag"),
     filename,
     buffer,
+    isPdf: filename.toLowerCase().endsWith(".pdf"),
   };
 }

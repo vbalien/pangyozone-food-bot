@@ -19,7 +19,9 @@ async function start() {
   const gusigResponse = await fetchGusig(POST_ID, etag ?? INITIAL_ETAG);
 
   if (gusigResponse.ok) {
-    const image = await pdf2image(gusigResponse.buffer, 2.5);
+    const image = gusigResponse.isPdf
+      ? await pdf2image(gusigResponse.buffer, 2.5)
+      : gusigResponse.buffer;
     const postProcessedImage = await sharp(image)
       .trim({
         background: "#ffffff",
