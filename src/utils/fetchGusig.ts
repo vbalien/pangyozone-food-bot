@@ -1,3 +1,5 @@
+import path from "node:path";
+
 export type GusigResponse =
   | {
       ok: true;
@@ -15,7 +17,10 @@ async function fetchFilename(postId: string): Promise<string> {
   const response = await fetch(url);
   const data = await response.json();
   let filename = data.map["BOARD_FILE"][0]?.file;
-  if (filename) {
+  if (
+    filename &&
+    [".pdf", ".png", ".jpg", ".jpeg"].includes(path.extname(filename))
+  ) {
     return `board/${filename}`;
   }
 
